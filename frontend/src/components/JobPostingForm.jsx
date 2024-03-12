@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, TextField } from '@mui/material';
 import { addDoc, collection, doc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
+import { useNavigate } from "react-router-dom";
 
 export default function JobPostingForm(){
     const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ export default function JobPostingForm(){
         location: '',
         package: '',
     });
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -28,6 +30,7 @@ export default function JobPostingForm(){
                 await addDoc(jobPostingsRef, formData);
                 
                 console.log("Successfully added job posting!");
+                // navigate('/job-board')
                 window.location.reload()
             }
         } catch (error) {
