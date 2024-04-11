@@ -30,7 +30,7 @@ export default function RecruiterForm() {
             if (user) {
                 await setDoc(doc(collection(db, "recruiter"), user.uid), formData)
                 .then((res) => console.log("Successfully updated profile!"))
-                navigate('/home')
+                navigate('/')
 
             }
         } catch (error) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, TextField } from '@mui/material';
-import { addDoc, collection, doc } from 'firebase/firestore';
+import { addDoc, collection, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase';
 import { useNavigate } from "react-router-dom";
 
@@ -24,10 +24,13 @@ export default function JobPostingForm(){
         try {
             const user = auth.currentUser;
             if (user) {
+                const jd = Object.values(formData).join('\n');
                 const recruiterRef = doc(collection(db, "recruiter"), user.uid);
                 
                 const jobPostingsRef = collection(recruiterRef, "job_postings");
-                await addDoc(jobPostingsRef, formData);
+                const result = await addDoc(jobPostingsRef, formData);
+                
+                    await updateDoc(doc(jobPostingsRef, result.id), {jd: jd});
                 
                 console.log("Successfully added job posting!");
                 // navigate('/job-board')

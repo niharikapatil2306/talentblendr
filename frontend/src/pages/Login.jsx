@@ -5,6 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { GoogleAuthProvider, signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { auth } from '../firebase';
+import { useDispatch } from "react-redux";
+import { setUser } from "../context/actions";
 
 export default function Login(params) {
 
@@ -16,13 +18,21 @@ export default function Login(params) {
 
     const navigate = useNavigate();
 
-    const login = async(e) => {
+    const dispatch = useDispatch();
+
+    const login = async (e) => {
         e.preventDefault()
         try {
-            await signInWithEmailAndPassword(auth, email, password)
-            .then(() => {
-                navigate("/home");
-            })
+            const result = await signInWithEmailAndPassword(auth, email, password)
+            const user = result.user
+                .then(() => {
+                    dispatch(setUser({
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                    }));
+                    navigate("/");
+                })
         } catch (error) {
             console.error("Error signing up:", error.message);
             setPasswordError(error.message);
@@ -35,10 +45,15 @@ export default function Login(params) {
         try {
             const provider = new GoogleAuthProvider();
             setLoad(true)
-            await signInWithPopup(auth, provider)
-            .then(() => {
-                navigate("/home")
-            })
+            const result = await signInWithPopup(auth, provider)
+            const user = result.user
+            dispatch(setUser({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+            }));
+            navigate("/")
         } catch (error) {
             console.error("Error signing up:", error.message);
             setPasswordError(error.message);

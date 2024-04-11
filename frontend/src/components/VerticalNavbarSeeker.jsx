@@ -3,14 +3,14 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from "react";
 import logo from "../assets/logo.png";
-import { AccountCircle, Edit, Home, ChevronLeft, DashboardCustomize, Logout, Recommend } from "@mui/icons-material";
+import { AccountCircle, Edit, Home, ChevronLeft, Logout, EditNote } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
 import { signOut } from "firebase/auth";
 import { useDispatch } from "react-redux";
 import { resetState } from "../context/actions";
 
-export default function VerticalNavbar() {
+export default function VerticalNavbarSeeker() {
 
     const [open, setOpen] = useState(false);
     const isLargeScreen = useMediaQuery('(min-width:600px)');
@@ -42,32 +42,27 @@ export default function VerticalNavbar() {
             {isLargeScreen ? (
                 <Drawer variant="permanent" >
                     <div>
-                        <img src={logo} alt="" style={{ width: "100%", height: '5rem', marginBottom: '1rem', marginTop: '1rem' }} />
+                        <img src={logo} alt="" style={{ height: '5rem', marginBottom: '2rem', marginTop: '1rem' }} />
                     </div>
                     <List>
 
-                        <ListItemButton component={Link} to="/home" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Home sx={{ fontSize: 48 }} />
+                        <ListItemButton component={Link} to="/" alignItems="center" sx={{ flexDirection: 'column' }}>
+                            <Home sx={{ fontSize: 64 }} />
                             <ListItemText primary="Home" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <AccountCircle sx={{ fontSize: 48 }} />
+                            <AccountCircle sx={{ fontSize: 64 }} />
                             <ListItemText primary="My Profile" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton component={Link} to="/job-board" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <DashboardCustomize sx={{ fontSize: 48 }} />
-                            <ListItemText primary="JobBoard" style={{ textAlign: 'center' }} />
-                        </ListItemButton>
-
-                        <ListItemButton component={Link} to="/recommendations" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Recommend sx={{ fontSize: 48 }} />
-                            <ListItemText primary="Recommendations" style={{ textAlign: 'center' }} />
+                            <EditNote sx={{ fontSize: 64 }} />
+                            <ListItemText primary="Blogs" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton onClick={handleLogout} alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Logout sx={{ fontSize: 48 }} />
+                            <Logout sx={{ fontSize: 64 }} />
                             <ListItemText primary="Logout" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
@@ -108,8 +103,8 @@ export default function VerticalNavbar() {
                             </ListItemButton>
                             <Divider component="li" />
                             <ListItemButton alignItems="center">
-                                <DashboardCustomize />
-                                <ListItemText primary="JobBoard" style={{ textAlign: 'center' }} />
+                                <EditNote />
+                                <ListItemText primary="Blog" style={{ textAlign: 'center' }} />
                             </ListItemButton>
                             <Divider component="li" />
                             <ListItemButton alignItems="center" onClick={handleLogout}>

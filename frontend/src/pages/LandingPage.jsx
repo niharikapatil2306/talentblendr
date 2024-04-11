@@ -3,7 +3,7 @@ import bg from "../assets/bg.jpg";
 import bg1 from "../assets/aboutus.gif";
 import bg2 from "../assets/ourapproach.gif"
 import bg3 from "../assets/bg16.jpg";
-import bg4 from "../assets/bg17.jpg";
+// import bg4 from "../assets/bg17.jpg";
 
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";

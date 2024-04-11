@@ -17,13 +17,13 @@ cred = credentials.Certificate("serviceAccountKey.json")
 firebase_admin.initialize_app(cred)
 db = firestore.client()
 import pandas as pd
+
 class PolicyModel(tf.keras.Model):
     def __init__(self, input_shape, num_actions):
         super(PolicyModel, self).__init__()
         self.dense1 = tf.keras.layers.Dense(128, activation='relu')
         self.dense2 = tf.keras.layers.Dense(64, activation='relu')
         self.dense3 = tf.keras.layers.Dense(num_actions, activation='softmax')
-        print("fffffffffffffffffffffff")
 
     def call(self, state):
         # Ensure input has at least two dimensions
@@ -31,113 +31,12 @@ class PolicyModel(tf.keras.Model):
         x = self.dense1(state)
         x = self.dense2(x)
         return self.dense3(x) 
-# # Initialize an empty DataFrame to store recruiter ID and job postings
-recruiter_job_df = pd.DataFrame(columns=['Recruiter_ID', 'Job_Postings'])
+    
+recruiter_job_df = pd.DataFrame(columns=['Recruiter_ID', 'Job_Posting_Id', 'Job_Postings'])
 
-# Define the callback function to handle snapshot changes
-def on_job_postings_snapshot(doc_snapshot, changes, read_time):
-    for change in changes:
-        if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
-            job_posting_data = change.document.to_dict()
-            # Process the job posting data here
-            # print("New job posting:")
-            # print(job_posting_data)
-
-# Reference to the recruiter collection
 recruiter_ref = db.collection('recruiter')
-
-# Listen for changes in the job_postings collection under each recruiter document
-# def listen_to_recruiters():
-#     # Listen for changes in the recruiter collection
-#     recruiter_watch = recruiter_ref.on_snapshot(on_recruiter_snapshot)
-
-def on_recruiter_snapshot(snapshot, changes, read_time):
-    for change in changes:
-        if change.type.name == 'ADDED':
-            recruiter_id = change.document.id
-            job_postings_ref = db.collection(f'recruiter/{recruiter_id}/job_postings')
-            job_postings_watch = job_postings_ref.on_snapshot(on_job_postings_snapshot)
-
-# Start listening for changes in the recruiter collection
-
-# Define the callback function to handle snapshot changes for job postings
-# def on_job_postings_snapshot(doc_snapshot, changes, read_time):
-#     global recruiter_job_df
-
-#     for change in changes:
-#         i=0
-#         if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
-#             recruiter_id = change.document.reference.parent.parent.id
-#             job_posting_data = change.document.to_dict()
-#             # print(job_posting_data)
-#             # print(i)
-#             # i=i+1
-#             job_description = job_posting_data.get('jd', '')
-#             print(recruiter_id,job_description)
-#             # Check if the recruiter ID already exists in the DataFrame
-#             recruiter_job_df["Recruiter_ID"]=recruiter_id 
-#             recruiter_job_df["Job_Postings"]=job_description
-
-            # print("Recruiter ID:", recruiter_id, "Job Description:", job_description)
-
-# Define the callback function to handle changes in the recruiter collection
-# def on_recruiter_snapshot(snapshot, changes, read_time):
-#     for change in changes:
-#         if change.type.name == 'ADDED':
-#             recruiter_id = change.document.id
-#             job_postings_ref = db.collection(f'recruiter/{recruiter_id}/job_postings')
-#             job_postings_watch = job_postings_ref.on_snapshot(on_job_postings_snapshot)
-
-# Reference to the recruiter collection
-recruiter_ref = db.collection('recruiter')
-
-# Listen for changes in the recruiter collection
-def listen_to_recruiters():
-    recruiter_watch = recruiter_ref.on_snapshot(on_recruiter_snapshot)
-
-# Start listening for changes in the recruiter collection
-listen_to_recruiters()
 
 recruiter_job_postings = []
-
-# Define the callback function to handle snapshot changes
-def on_job_postings_snapshot(doc_snapshot, changes, read_time):
-    global recruiter_job_postings  # Declare the list as global to modify it inside the function
-    
-    for change in changes:
-        if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
-            recruiter_id = change.document.reference.parent.parent.id  # Get the parent recruiter ID
-            job_posting_data = change.document.to_dict()
-            
-            # Append data to the list
-            recruiter_job_postings.append({
-                'Recruiter_ID': recruiter_id,
-                'Job_Postings':job_posting_data.get('jd', '')
-            })
-
-            # Process the job posting data here
-            # print("New job posting:")
-            # print(job_posting_data)
-
-# Reference to the recruiter collection
-recruiter_ref = db.collection('recruiter')
-
-# Listen for changes in the job_postings collection under each recruiter document
-def listen_to_recruiters():
-    # Listen for changes in the recruiter collection
-    recruiter_watch = recruiter_ref.on_snapshot(on_recruiter_snapshot)
-
-def on_recruiter_snapshot(snapshot, changes, read_time):
-    global recruiter_job_postings  # Declare the list as global to modify it inside the function
-    
-    for change in changes:
-        if change.type.name == 'ADDED':
-            recruiter_id = change.document.id
-            job_postings_ref = db.collection(f'recruiter/{recruiter_id}/job_postings')
-            job_postings_watch = job_postings_ref.on_snapshot(on_job_postings_snapshot)
-
-# Start listening for changes in the recruiter collection
-listen_to_recruiters()
 
 # Check if the DataFrame is initially empty and fetch existing job postings if needed
 if not recruiter_job_postings:
@@ -149,16 +48,12 @@ if not recruiter_job_postings:
             job_posting_data = job_posting.to_dict()
             recruiter_job_postings.append({
                 'Recruiter_ID': recruiter_id,
+                'Job_Posting_Id': job_posting.id,
                 'Job_Postings': job_posting_data.get('jd', '')
             })
 
-# Convert the list of dictionaries to a DataFrame
 recruiter_job_df = pd.DataFrame(recruiter_job_postings)
 
-# Print the DataFrame to see the recruiter IDs and their corresponding job postings
-# print(recruiter_job_df)
-
-# # Listen for changes in the collection
 docs = db.collection('seeker').stream()
 
 data_list = []
@@ -280,9 +175,10 @@ def train_policy_model():
     for i in range(jd_ndata_dense.shape[0]):
         # Get the recruiter ID for this job posting
         recruiter_id = recruiter_job_df.iloc[i]['Recruiter_ID']
+        job_posting_id = recruiter_job_df.iloc[i]['Job_Posting_Id']
         
         # Create a reference to the recruiter's recommendations collection
-        recommendation_collection_ref = db.collection(f'recruiter/{recruiter_id}/recommendations')
+        recommendation_collection_ref = db.collection(f'recruiter/{recruiter_id}/job_postings/{job_posting_id}/recommendations')
         
         # Get the top 5 recommendations for this job posting
         state = tf.convert_to_tensor(jd_ndata_dense[i], dtype=tf.float32)
@@ -296,6 +192,7 @@ def train_policy_model():
                 'name': df.iloc[idx]['name']
             }
             print( recommendation_data )
+    
             # Create a document reference for each recommendation
             recommendation_document_ref = recommendation_collection_ref.document(str(df.iloc[idx]['id']))
             
@@ -307,7 +204,7 @@ def train_policy_model():
         
 
 if __name__ == "__main__":
-    listen_to_recruiters()
+    # listen_to_recruiters()
     
     # Fetch job seeker data
     

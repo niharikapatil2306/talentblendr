@@ -6,6 +6,8 @@ import { useState } from 'react';
 import { auth } from "../firebase.js";
 import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { Done } from '@mui/icons-material';
+import { useDispatch } from "react-redux";
+import { setUser } from "../context/actions";
 
 export default function Signup() {
     const [email, setEmail] = useState('');
@@ -16,6 +18,8 @@ export default function Signup() {
     const [load, setLoad] = useState(false);
 
     const navigate = useNavigate();
+
+    const dispatch = useDispatch();
 
     const signup = async (e) => {
         e.preventDefault();
@@ -29,7 +33,11 @@ export default function Signup() {
                 userId: user.uid,
                 // Add more user data if needed
             });
-        
+            dispatch(setUser({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+            }));
             navigate("/question");
 
         } catch (error) {
@@ -43,10 +51,17 @@ export default function Signup() {
         try {
             const provider = new GoogleAuthProvider();
             setLoad(true)
-            await signInWithPopup(auth, provider)
-                .then(() => {
-                    navigate("/question")
-                })
+            const result = await signInWithPopup(auth, provider)
+            const user = result.user
+            .then(() => {
+                dispatch(setUser({
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                }));
+                navigate("/question")
+            })
         } catch (error) {
             console.error("Error signing up:", error.message);
             setPasswordError(error.message);
