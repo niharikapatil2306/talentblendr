@@ -47,27 +47,27 @@ export default function VerticalNavbar() {
                     <List>
 
                         <ListItemButton component={Link} to="/" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Home sx={{ fontSize: 48 }} />
+                            <Home sx={{ fontSize: 36 }} />
                             <ListItemText primary="Home" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <AccountCircle sx={{ fontSize: 48 }} />
+                            <AccountCircle sx={{ fontSize: 36 }} />
                             <ListItemText primary="My Profile" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton component={Link} to="/job-board" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <DashboardCustomize sx={{ fontSize: 48 }} />
+                            <DashboardCustomize sx={{ fontSize: 36 }} />
                             <ListItemText primary="JobBoard" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton component={Link} to="/recommendations" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Recommend sx={{ fontSize: 48 }} />
+                            <Recommend sx={{ fontSize: 36 }} />
                             <ListItemText primary="Recommendations" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton onClick={handleLogout} alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Logout sx={{ fontSize: 48 }} />
+                            <Logout sx={{ fontSize: 36 }} />
                             <ListItemText primary="Logout" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
