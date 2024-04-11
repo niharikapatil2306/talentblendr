@@ -4,11 +4,14 @@ import { Box, Card, CardActions, CardContent, Grid, IconButton, Typography, Butt
 import { Check, Close, Person } from "@mui/icons-material";
 import { auth, db } from '../firebase';
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function SelectedCandidates() {
     const [recommendations, setRecommendations] = useState([]);
 
     const user = useSelector(state => state.userReducer);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(user => {
@@ -45,6 +48,10 @@ export default function SelectedCandidates() {
 
         return () => unsubscribe();
     }, []);
+
+    const nav = () => {
+        navigate('recommendations')
+    }
 
     const handleApprove = (id) => {
         const selected = collection(db, "recruiter", user.user.uid, 'job_postings')
@@ -101,7 +108,7 @@ export default function SelectedCandidates() {
                     )))}
 
             </div>
-            <Button sx={{float:'inline-end', marginRight:'2rem', marginTop:'1rem'}}>
+            <Button sx={{float:'inline-end', marginRight:'2rem', marginTop:'1rem'}} onClick={nav}>
                 Check More
             </Button>
         </>

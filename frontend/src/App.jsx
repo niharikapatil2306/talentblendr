@@ -19,7 +19,6 @@ function App() {
   return (
 
     <Routes>
-      <Route path='/home' element={<Home />} />
       <Route path="/" element={ (user.user === null)? (<LandingPage />) : (<Home />) } />
       <Route path="/login" element={<Login />} />
       <Route path='/signup' element={<Signup />} />

@@ -46,7 +46,7 @@ export default function VerticalNavbar() {
                     </div>
                     <List>
 
-                        <ListItemButton component={Link} to="/home" alignItems="center" sx={{ flexDirection: 'column' }}>
+                        <ListItemButton component={Link} to="/" alignItems="center" sx={{ flexDirection: 'column' }}>
                             <Home sx={{ fontSize: 48 }} />
                             <ListItemText primary="Home" style={{ textAlign: 'center' }} />
                         </ListItemButton>

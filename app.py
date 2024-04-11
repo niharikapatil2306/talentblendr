@@ -8,6 +8,7 @@ import tensorflow as tf
 # import tensorflow_probability as tfp
 import torch.nn as nn
 import numpy as np
+import time
 # Initialize Flask app
 
 import firebase_admin
@@ -37,6 +38,36 @@ recruiter_job_df = pd.DataFrame(columns=['Recruiter_ID', 'Job_Posting_Id', 'Job_
 recruiter_ref = db.collection('recruiter')
 
 recruiter_job_postings = []
+
+def on_job_postings_snapshot(doc_snapshot, changes, read_time):
+    global recruiter_job_postings  # Declare the list as global to modify it inside the function
+    for change in changes:
+        if change.type.name == 'ADDED' or change.type.name == 'MODIFIED':
+            recruiter_id = change.document.reference.parent.parent.id  # Get the parent recruiter ID
+            job_posting_id = change.document.id
+            job_posting_data = change.document.to_dict()
+            
+            # Append data to the list
+            recruiter_job_postings.append({
+                'Recruiter_ID': recruiter_id,
+                'Job_Posting_Id': job_posting_id,
+                'Job_Postings': job_posting_data.get('jd', '')
+            })
+
+# Listen for changes in the job_postings collection under each recruiter document
+def listen_to_recruiters():
+    # Listen for changes in the recruiter collection
+    recruiter_watch = recruiter_ref.on_snapshot(on_recruiter_snapshot)
+
+
+def on_recruiter_snapshot(snapshot, changes, read_time):
+    global recruiter_job_postings  # Declare the list as global to modify it inside the function
+    
+    for change in changes:
+        if change.type.name == 'ADDED':
+            recruiter_id = change.document.id
+            job_postings_ref = db.collection(f'recruiter/{recruiter_id}/job_postings')
+            job_postings_watch = job_postings_ref.on_snapshot(on_job_postings_snapshot)
 
 # Check if the DataFrame is initially empty and fetch existing job postings if needed
 if not recruiter_job_postings:
@@ -114,8 +145,6 @@ def clean_and_preprocess_data():
     df['gpa'] = df['gpa'].apply(clean_text)
     df['cand'] = df['project1'] +" "+  df['technologiesUsedInProject1'] +" "+  df['project2'] +" "+df['technologiesUsedInProject2'] +" "+df['skills'] +" "+df['stream'] +" "+df['experienceInYears'] +" "+df['certification'] +" "+df['publications']+" "+df['gpa']+" "+df['qualification']
 
-    
-
 
 # Train policy model using reinforcement learning
 def train_policy_model():
@@ -136,7 +165,7 @@ def train_policy_model():
     input_shape = jd_ndata_dense.shape[1]
     policy_model = PolicyModel(input_shape, num_actions)
     optimizer = tf.keras.optimizers.Adam(learning_rate)
-    print("jjjjjjjjjjj")
+
     for epoch in range(epochs):
         for i in range(jd_ndata_dense.shape[0]):
             state = tf.convert_to_tensor(jd_ndata_dense[i], dtype=tf.float32)
@@ -153,6 +182,9 @@ def train_policy_model():
                 # Compute cosine similarities for the selected action
                 cosine_similarities = cosine_similarity(cand_dense[action.numpy()].reshape(1, -1), jd_ndata_dense[i].reshape(1, -1))
                 reward = cosine_similarities[0][0]
+
+                # match_percentage = (reward + 1) * 50
+                # print(match_percentage)
 
                 # Calculate advantage
                 advantage = reward - np.mean(cosine_similarity(cand_dense[action.numpy()], jd_ndata_dense))
@@ -204,10 +236,9 @@ def train_policy_model():
         
 
 if __name__ == "__main__":
-    # listen_to_recruiters()
     
-    # Fetch job seeker data
-    
+    listen_to_recruiters()
+
     # Clean and preprocess data
     clean_and_preprocess_data()
     
