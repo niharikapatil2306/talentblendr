@@ -70,7 +70,7 @@ export default function LandingPage() {
                 </div>
             </Container>
             <div className="h-24 m-1 g-0" id="whyus" />
-            <Container fluid className="bg-cover h-screen g-0" style={{ backgroundImage: `url(${bg3})` }}>
+            <Container fluid className="bg-cover h-screen g-0 mb-20" style={{ backgroundImage: `url(${bg3})` }}>
                 <div className="">
                     <Row className="text-8xl font-serif text-center text-blue-950 font-bold mb-20 g-0">
                         <Col>

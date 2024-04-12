@@ -221,7 +221,10 @@ def train_policy_model():
         for idx in top5_indices:            
             recommendation_data = {
                 'id': df.iloc[idx]['id'],
-                'name': df.iloc[idx]['name']
+                'name': df.iloc[idx]['name'],
+                'selected': False,
+                'rejected': False
+
             }
             print( recommendation_data )
     

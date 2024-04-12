@@ -2,6 +2,7 @@ import { Grid } from "@mui/material";
 import SelectedCandidates from "../components/SelectedCandidates";
 import VerticalNavbar from "../components/VerticalNavbar";
 import AnalyticsAndReports from "../components/AnalyticsandReport";
+import Chatbox from "../components/Chatbox";
 
 export default function Home() {
     return (
@@ -16,6 +17,13 @@ export default function Home() {
                     </Grid>
                     <Grid item xs={12} md={6}>
                         <AnalyticsAndReports />
+                    </Grid>
+                </Grid>
+                <Grid container spacing={4}>
+                    <Grid item xs={12} md={6}>
+                    <Chatbox />
+                    </Grid>
+                    <Grid item xs={12} md={6}>
                     </Grid>
                 </Grid>
             </Grid>

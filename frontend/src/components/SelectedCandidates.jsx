@@ -64,7 +64,7 @@ export default function SelectedCandidates() {
 
     return (
         <>
-            <div style={{ maxHeight: '13rem', overflowY: 'auto', marginTop: '2rem' }}>
+            <div style={{ maxHeight: '20rem', overflowY: 'auto', marginTop: '2rem' }}>
                 {recommendations.length === 0 ? (
                     <></>
                 ) : (
