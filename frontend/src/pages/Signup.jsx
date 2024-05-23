@@ -3,11 +3,12 @@ import bg1 from "../assets/5541.jpg";
 import google from "../assets/icons/google.svg";
 import { Link, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
-import { auth } from "../firebase.js";
+import { auth, db } from "../firebase.js";
 import { GoogleAuthProvider, createUserWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 import { Done } from '@mui/icons-material';
 import { useDispatch } from "react-redux";
 import { setUser } from "../context/actions";
+import { doc, setDoc } from 'firebase/firestore';
 
 export default function Signup() {
     const [email, setEmail] = useState('');
@@ -53,15 +54,18 @@ export default function Signup() {
             setLoad(true)
             const result = await signInWithPopup(auth, provider)
             const user = result.user
-            .then(() => {
-                dispatch(setUser({
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                }));
-                navigate("/question")
-            })
+            await setDoc(doc(db, "users", user.uid), {
+                email: user.email,
+                userId: user.uid,
+                // Add more user data if needed
+            });
+            dispatch(setUser({
+                uid: user.uid,
+                email: user.email,
+                displayName: user.displayName,
+                photoURL: user.photoURL,
+            }));
+            navigate("/question")
         } catch (error) {
             console.error("Error signing up:", error.message);
             setPasswordError(error.message);

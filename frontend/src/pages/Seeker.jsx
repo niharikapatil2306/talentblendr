@@ -1,5 +1,7 @@
-import { Grid } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import VerticalNavbarSeeker from "../components/VerticalNavbarSeeker";
+import { collection, doc, getDocs, setDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 export default function Seeker() {
 
@@ -11,7 +13,7 @@ export default function Seeker() {
             <Grid item xs={12} sm={9} md={10} >
                 <Grid container spacing={4}>
                     <Grid item xs={12} md={6}>
-                    
+                        
                     </Grid>
                     <Grid item xs={12} md={6}>
                         

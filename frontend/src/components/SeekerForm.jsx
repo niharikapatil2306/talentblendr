@@ -2,9 +2,13 @@ import { Autocomplete, Button, Container, FormControl, Grid, InputLabel, MenuIte
 import { useEffect, useState } from "react";
 import bg from "../assets/seeker1.png";
 import { auth, db } from "../firebase";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function SeekerForm() {
+
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: "",
         project1: "",
@@ -23,6 +27,8 @@ export default function SeekerForm() {
     useEffect(() => {
         const user = auth.currentUser;
         if (user) {
+            const ref = doc(db, "users", user.uid);
+            updateDoc(ref, { role: 'seeker' });
             setFormData({
                 ...formData,
                 name: user.displayName || "",
@@ -52,6 +58,7 @@ export default function SeekerForm() {
             if (user) {
                 await setDoc(doc(collection(db, "seeker"), user.uid), formData)
                 .then((res) => console.log("Successfully updated profile!"))
+
             }
         } catch (error) {
             console.error("Error submitting form data:", error);

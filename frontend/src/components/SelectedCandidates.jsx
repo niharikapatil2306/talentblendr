@@ -50,17 +50,17 @@ export default function SelectedCandidates() {
     }, []);
 
     const nav = () => {
-        navigate('recommendations')
+        navigate('/recommendations')
     }
 
-    const handleApprove = (id) => {
-        const selected = collection(db, "recruiter", user.user.uid, 'job_postings')
+    // const handleApprove = (id) => {
+    //     const selected = collection(db, "recruiter", user.user.uid, 'job_postings')
 
-    };
+    // };
 
-    const handleReject = (id) => {
-        // Handle rejection logic for the recommendation with ID 'id'
-    };
+    // const handleReject = (id) => {
+    //     // Handle rejection logic for the recommendation with ID 'id'
+    // };
 
     return (
         <>
@@ -68,7 +68,7 @@ export default function SelectedCandidates() {
                 {recommendations.length === 0 ? (
                     <></>
                 ) : (
-                    <Typography variant='h4' sx={{ fontWeight: "bold" }}>
+                    <Typography variant='h4' sx={{ fontWeight: "bold", color:'#4C6071' }}>
                         {recommendations[recommendations.length - 1]['title']}
                     </Typography>
                 )}
@@ -83,9 +83,9 @@ export default function SelectedCandidates() {
                                 <Grid item xs={9}>
                                     <CardContent>
                                         <div style={{ display: 'flex', alignItems: 'center' }}>
-                                            <Person style={{ border: '2px', borderStyle: 'solid', borderColor: 'black', borderRadius: '50%', width: '6rem', height: '6rem', marginRight: '2rem' }} />
+                                            <Person style={{ color:"#28323B", border: '2px', borderStyle: 'solid', borderColor: '#28323B', borderRadius: '50%', width: '6rem', height: '6rem', marginRight: '2rem' }} />
                                             <div>
-                                                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{recommendation.name}</Typography>
+                                                <Typography variant="body1" sx={{ fontWeight: 'bold', color:'#28323B' }}>{recommendation.name}</Typography>
                                                 <Typography variant="body2" sx={{ color: 'text.secondary' }}>{recommendation.education}</Typography>
                                             </div>
                                         </div>

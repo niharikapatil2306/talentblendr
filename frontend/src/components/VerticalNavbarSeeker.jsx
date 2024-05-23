@@ -2,7 +2,7 @@ import { AppBar, Divider, Drawer, IconButton, List, ListItemButton, ListItemText
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo1.png";
 import { AccountCircle, Edit, Home, ChevronLeft, Logout, EditNote } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
@@ -47,22 +47,22 @@ export default function VerticalNavbarSeeker() {
                     <List>
 
                         <ListItemButton component={Link} to="/" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Home sx={{ fontSize: 64 }} />
+                            <Home sx={{ fontSize: 54 }} />
                             <ListItemText primary="Home" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <AccountCircle sx={{ fontSize: 64 }} />
+                            <AccountCircle sx={{ fontSize: 54 }} />
                             <ListItemText primary="My Profile" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton component={Link} to="/job-board" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <EditNote sx={{ fontSize: 64 }} />
+                            <EditNote sx={{ fontSize: 54 }} />
                             <ListItemText primary="Blogs" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
                         <ListItemButton onClick={handleLogout} alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <Logout sx={{ fontSize: 64 }} />
+                            <Logout sx={{ fontSize: 54 }} />
                             <ListItemText primary="Logout" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 

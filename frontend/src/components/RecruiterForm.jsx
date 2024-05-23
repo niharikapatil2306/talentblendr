@@ -1,7 +1,7 @@
 import { Button, Container, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material/";
 import { useState } from "react";
 import { auth, db } from "../firebase";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
 import bg from "../assets/hiring.png"
 import { useNavigate } from "react-router-dom";
 
@@ -28,6 +28,8 @@ export default function RecruiterForm() {
         try {
             const user = auth.currentUser;
             if (user) {
+                const ref = doc(db, "users", user.uid);
+                await updateDoc(ref, { role: 'recruiter' });
                 await setDoc(doc(collection(db, "recruiter"), user.uid), formData)
                 .then((res) => console.log("Successfully updated profile!"))
                 navigate('/')

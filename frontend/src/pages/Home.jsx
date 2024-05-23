@@ -6,7 +6,7 @@ import Chatbox from "../components/Chatbox";
 
 export default function Home() {
     return (
-        <Grid container spacing={1}>
+        <Grid container spacing={1} sx={{backgroundColor:'rgba(226, 229, 229, 0.25)'}}>
             <Grid item xs={12} sm={3} md={2}>
                 <VerticalNavbar />
             </Grid>
