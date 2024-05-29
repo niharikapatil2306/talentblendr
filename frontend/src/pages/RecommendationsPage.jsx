@@ -6,7 +6,7 @@ import Recommendations from "../components/Recommendations";
 
 export default function RecommendationsPage() {
     return (
-        <Grid container spacing={1}>
+        <Grid container spacing={1} sx={{backgroundColor:'rgba(226, 229, 229, 1)'}}>
             <Grid item xs={12} sm={3} md={2}>
                 <VerticalNavbar />
             </Grid>

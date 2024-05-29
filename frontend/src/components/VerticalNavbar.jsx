@@ -2,7 +2,7 @@ import { AppBar, Divider, Drawer, IconButton, List, ListItemButton, ListItemText
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useState } from "react";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo1.png";
 import { AccountCircle, Edit, Home, ChevronLeft, DashboardCustomize, Logout, Recommend } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { auth } from "../firebase";
@@ -40,11 +40,11 @@ export default function VerticalNavbar() {
     return (
         <>
             {isLargeScreen ? (
-                <Drawer variant="permanent" >
-                    <div>
+                <Drawer variant="permanent">
+                    <div style={{backgroundColor:'rgba(136, 186, 203, 0.4)'}}>
                         <img src={logo} alt="" style={{ width: "100%", height: '5rem', marginBottom: '1rem', marginTop: '1rem' }} />
                     </div>
-                    <List>
+                    <List sx={{backgroundColor:'rgba(136, 186, 203, 0.4)', height:'100%'}}>
 
                         <ListItemButton component={Link} to="/" alignItems="center" sx={{ flexDirection: 'column' }}>
                             <Home sx={{ fontSize: 36 }} />

@@ -2,9 +2,13 @@ import { Autocomplete, Button, Container, FormControl, Grid, InputLabel, MenuIte
 import { useEffect, useState } from "react";
 import bg from "../assets/seeker1.png";
 import { auth, db } from "../firebase";
-import { collection, doc, setDoc } from "firebase/firestore";
+import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
+import { useNavigate } from "react-router-dom";
 
 export default function SeekerForm() {
+
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         name: "",
         project1: "",
@@ -23,6 +27,8 @@ export default function SeekerForm() {
     useEffect(() => {
         const user = auth.currentUser;
         if (user) {
+            const ref = doc(db, "users", user.uid);
+            updateDoc(ref, { role: 'seeker' });
             setFormData({
                 ...formData,
                 name: user.displayName || "",
@@ -52,6 +58,7 @@ export default function SeekerForm() {
             if (user) {
                 await setDoc(doc(collection(db, "seeker"), user.uid), formData)
                 .then((res) => console.log("Successfully updated profile!"))
+
             }
         } catch (error) {
             console.error("Error submitting form data:", error);
@@ -79,8 +86,54 @@ export default function SeekerForm() {
         "TensorFlow",
         "PyTorch",
         "Scikit-learn",
+        "Ansible",
+        "ASP.NET",
+        "ASP.NET Core",
+        "Assembly",
+        "AWS",
+        "Bash/Shell",
+        "C",
+        "C#",
+        "C++",
+        "Couchbase",
+        "Delphi",
+        "DigitalOcean",
+        "Docker",
+        "DynamoDB",
+        "Express",
+        "Git",
+        "Go",
+        "Google Cloud Platform",
+        "Heroku",
+        "jQuery",
+        "Kotlin",
+        "Kubernetes",
+        "Laravel",
+        "Matlab",
+        "Microsoft Azure",
+        "Microsoft SQL Server",
+        "MongoDB",
+        "MySQL",
+        "Oracle",
+        "Perl",
+        "PHP",
+        "PostgreSQL",
+        "PowerShell",
+        "Redis",
+        "Ruby",
+        "Ruby on Rails",
+        "Rust",
+        "Scala",
+        "Svelte",
+        "Spring",
+        "SQL Server",
+        "SQLite",
+        "Terraform",
+        "Unity 3D",
+        "VBA",
+        "Yarn"
     ];
-
+    
     return (
         <Container style={{ height: "100vh" }}>
             <Grid container spacing={3} style={{ height: "100%" }}>
@@ -122,8 +175,10 @@ export default function SeekerForm() {
                                         Qualification
                                     </InputLabel>
                                     <Select name="qualification" label="Qualification" labelId="label-id" value={formData.qualification} onChange={handleChange}>
-                                        <MenuItem value="BE">BE</MenuItem>
+                                    <MenuItem value="BE">BE</MenuItem>
                                         <MenuItem value="BTECH">BTECH</MenuItem>
+                                        <MenuItem value="Masters">Masters</MenuItem>
+                                        <MenuItem value="PHD">PHD</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -133,7 +188,8 @@ export default function SeekerForm() {
                                         Stream
                                     </InputLabel>
                                     <Select name="stream" label="Stream" labelId="label-id" value={formData.stream} onChange={handleChange}>
-                                        <MenuItem value="AIML">AIML</MenuItem>
+                                    <MenuItem value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</MenuItem>
+                                        <MenuItem value="DataScience">Data Science</MenuItem>
                                         <MenuItem value="CS">CS</MenuItem>
                                         <MenuItem value="IT">IT</MenuItem>
                                         <MenuItem value="ECE">ECE</MenuItem>

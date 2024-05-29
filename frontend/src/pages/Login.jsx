@@ -25,14 +25,13 @@ export default function Login(params) {
         try {
             const result = await signInWithEmailAndPassword(auth, email, password)
             const user = result.user
-                .then(() => {
+   
                     dispatch(setUser({
                         uid: user.uid,
                         email: user.email,
                         displayName: user.displayName,
                     }));
                     navigate("/");
-                })
         } catch (error) {
             console.error("Error signing up:", error.message);
             setPasswordError(error.message);

@@ -11,34 +11,55 @@ export default function Recommendations() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
-    const user = useSelector(state => state.userReducer);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged(user => {
+        const unsubscribe = auth.onAuthStateChanged(async (user) => {
             if (user) {
                 const recruiterId = user.uid;
-                const jobPostingsRef = collection(db, 'recruiter', recruiterId, 'job_postings');
-                const unsubscribeSnapshot = onSnapshot(jobPostingsRef, async (snapshot) => {
-                    for (const doc of snapshot.docs.values()) {
-                        const recRef = collection(jobPostingsRef, doc.id, 'recommendations')
-                        const result = await getDocs(recRef)
-                        const newRecommendations = result.docs.map((doc) => ({
-                            id: doc.id,
-                            ...doc.data(),
-                        }))
-                        const hasRecommendation = recommendations.some((rec) => rec.id === doc.id);
-                        if (!hasRecommendation) {
-                            setRecommendations((prev) => [
-                                ...prev,
-                                {
-                                    id: doc.id, title: doc.data().title,
-                                    newRecommendations
-                                },
+                const recruiterRef = doc(collection(db, 'recommendations'), recruiterId);
+                // const doc1 = await getDoc(recruiterRef)
+                // await setDocExist(doc1.exists())              
 
-                            ])
+                const unsubscribeSnapshot = onSnapshot(recruiterRef, async (recruiterDoc) => {
+                    if (recruiterDoc.id) {
+                        const jobPostingIds = (await getDocs(collection(db, 'job_postings'))).docs.map((doc) => {
+                            console.log(doc.data())
+                            if (doc.data()['rec_id'] == recruiterId) {
+                                return {
+                                    id: doc.id,
+                                    title: doc.data().title
+                                }
+                            }
+                            else {
+                                return null;
+                            }
+                        }).filter(posting => posting !== null);
+                        console.log(jobPostingIds)
+
+                        for (const jobPostingId of jobPostingIds) {
+
+                            const jobPostingDocRef = collection(recruiterRef, jobPostingId.id);
+                            const recommendationsSnapshot = await getDocs(jobPostingDocRef);
+
+                            const newRecommendations = recommendationsSnapshot.docs.map((doc) => ({
+                                id: doc.id,
+                                ...doc.data(),
+                            }));
+                            const hasRecommendation = recommendations.some((rec) => rec.id === jobPostingId.id);
+                            if (!hasRecommendation) {
+                                setRecommendations((prev) => [
+                                    ...prev,
+                                    {
+                                        id: jobPostingId.id,
+                                        title: jobPostingId.title,
+                                        newRecommendations,
+                                    },
+                                ]);
+                            }
+
                         }
                     }
-                })
+                });
 
                 return () => unsubscribeSnapshot();
             }
@@ -47,12 +68,10 @@ export default function Recommendations() {
         return () => unsubscribe();
     }, [auth]);
 
-    const handleApprove = async (docId, userId, username) => {
-        const selected = collection(db, "recruiter", user.user.uid, 'job_postings', docId, 'selected');
-        await setDoc(doc(selected, userId), {
-            name: username,
-        });
-        await updateDoc(doc(collection(db, "recruiter", user.user.uid, 'job_postings', docId, 'recommendations'), userId), {
+    const handleApprove = async (docId, userId, data) => {
+        const selected = collection(db, "selected");
+        await setDoc(doc(selected, userId), data);
+        await updateDoc(doc(collection(db, "recommendations", user.user.uid, docId, ''), userId), {
             selected: true
         })
 
@@ -75,14 +94,13 @@ export default function Recommendations() {
 
     };
 
-    const handleReject = async (docId, userId, username) => {
-        const selected = collection(db, "recruiter", user.user.uid, 'job_postings', docId, 'rejected');
-        await setDoc(doc(selected, userId), {
-            name: username,
-        });
-        await updateDoc(doc(collection(db, "recruiter", user.user.uid, 'job_postings', docId, 'recommendations'), userId), {
+    const handleReject = async (docId, userId, data) => {
+        const selected = collection(db, 'rejected');
+        await setDoc(doc(selected, userId), data);
+        await updateDoc(doc(collection(db, "recommendations", user.user.uid, docId, ''), userId), {
             rejected: true
         })
+
         const filteredRecommendations = recommendations.map(rec => {
             if (rec.id === docId) {
                 const updatedRecommendations = rec.newRecommendations.map(candidate => {
@@ -113,6 +131,13 @@ export default function Recommendations() {
         setSelectedUser(null);
         setIsSidePanelOpen(false);
     };
+    
+    if (recommendations.length===1 && recommendations[0]['newRecommendations'].length != 5) {
+        return (
+            <>
+            </>
+        )
+    }
 
     return (
         <div>
@@ -134,8 +159,8 @@ export default function Recommendations() {
                                                     <div style={{ display: 'flex', alignItems: 'center' }}>
                                                         <Person style={{ border: '2px', borderStyle: 'solid', borderColor: 'black', borderRadius: '50%', width: '6rem', height: '6rem', marginRight: '2rem' }} />
                                                         <div>
-                                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{recommendation.name}</Typography>
-                                                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>{recommendation.education}</Typography>
+                                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>{recommendation['Name']}</Typography>
+                                                            <Typography variant="body2" sx={{ color: 'text.secondary' }}>{(recommendation['Similarity_Score'] * 100).toFixed(2)}</Typography>
                                                         </div>
                                                     </div>
                                                 </CardContent>
@@ -144,10 +169,10 @@ export default function Recommendations() {
                                                 {!recommendation.selected &&
                                                     <CardActions disableSpacing style={{ height: '100%', display: 'flex', flexFlow: 'column', justifyContent: 'space-between' }}>
                                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                                                            <IconButton onClick={() => handleApprove(rec.id, recommendation.id, recommendation.name)}>
+                                                            <IconButton onClick={() => handleApprove(recommendation['Job_Posting_Id'], recommendation.id, recommendation)}>
                                                                 <Check />
                                                             </IconButton>
-                                                            <IconButton onClick={() => handleReject(rec.id, recommendation.id, recommendation.name)}>
+                                                            <IconButton onClick={() => handleReject(recommendation['Job_Posting_Id'], recommendation.id, recommendation)}>
                                                                 <Close />
                                                             </IconButton>
                                                         </Box>
@@ -164,27 +189,27 @@ export default function Recommendations() {
             <Drawer anchor="right" open={isSidePanelOpen} onClose={closeSidePanel}>
                 {selectedUser && (
                     <div style={{ width: 400, padding: '20px' }}>
-                        <Typography variant="h5" sx={{fontWeight:'bold', marginBottom:'1.5rem'}}>{selectedUser.name}</Typography>
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: '1.5rem' }}>{selectedUser.name}</Typography>
                         {/* <Typography variant="body1">Email: {selectedUser.email}</Typography> */}
-                        <Grid container spacing={1} sx={{width: '100%', marginBottom:'0.5rem'}}>
+                        <Grid container spacing={1} sx={{ width: '100%', marginBottom: '0.5rem' }}>
                             <Grid item xs={6}>
-                            <Typography variant="body1"><b><u>Qualification:</u> </b>{selectedUser.qualification}</Typography>
+                                <Typography variant="body1"><b><u>Qualification:</u> </b>{selectedUser.qualification}</Typography>
                             </Grid>
-                            <Grid xs={6} item style={{display:'flex', justifyContent:'flex-end'}}>
-                            <Typography variant="body1"><b><u>GPA:</u> </b>{selectedUser.gpa}</Typography>
+                            <Grid xs={6} item style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Typography variant="body1"><b><u>GPA:</u> </b>{selectedUser.gpa}</Typography>
                             </Grid>
                         </Grid>
-                        <Typography variant="body1" sx={{marginBottom:'0.5rem'}}><b><u>Certification:</u> </b>{selectedUser.certification}</Typography>
-                        <Typography variant="body1" sx={{marginBottom:'0.5rem'}}><b><u>Experience:</u> </b>{selectedUser.experienceInYears} years</Typography>
-                    
-                        
-                        <Typography variant="body1" sx={{marginBottom:'0.5rem'}}><b><u>Skills:</u> </b> {selectedUser.skills.join(", ")}</Typography>
+                        <Typography variant="body1" sx={{ marginBottom: '0.5rem' }}><b><u>Certification:</u> </b>{selectedUser.certification}</Typography>
+                        <Typography variant="body1" sx={{ marginBottom: '0.5rem' }}><b><u>Experience:</u> </b>{selectedUser.experienceInYears} years</Typography>
+
+
+                        <Typography variant="body1" sx={{ marginBottom: '0.5rem' }}><b><u>Skills:</u> </b> {selectedUser.skills.join(", ")}</Typography>
                         {/* <Typography variant="body1">Stream: {selectedUser.stream}</Typography>
-                        <Typography variant="body1">Project 1: {selectedUser.project1}</Typography>
-                        <Typography variant="body1">Project 2: {selectedUser.project2}</Typography> */}
-                        <Typography variant="body1" sx={{marginBottom:'0.5rem'}}><b><u>Publications:</u> </b> {selectedUser.publications}</Typography>
+                    <Typography variant="body1">Project 1: {selectedUser.project1}</Typography>
+                    <Typography variant="body1">Project 2: {selectedUser.project2}</Typography> */}
+                        <Typography variant="body1" sx={{ marginBottom: '0.5rem' }}><b><u>Publications:</u> </b> {selectedUser.publications}</Typography>
                         {/* <Typography variant="body1">Technologies Used in Project 1: {selectedUser.technologiesUsedInProject1}</Typography>
-                        <Typography variant="body1">Technologies Used in Project 2: {selectedUser.technologiesUsedInProject2}</Typography> */}
+                    <Typography variant="body1">Technologies Used in Project 2: {selectedUser.technologiesUsedInProject2}</Typography> */}
 
                     </div>
                 )}

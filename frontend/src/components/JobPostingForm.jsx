@@ -24,13 +24,17 @@ export default function JobPostingForm(){
         try {
             const user = auth.currentUser;
             if (user) {
-                const jd = Object.values(formData).join('\n');
-                const recruiterRef = doc(collection(db, "recruiter"), user.uid);
+                const jd = [
+                    formData.title,
+                    formData.description,
+                    formData.requirements
+                ].join('\n');
                 
-                const jobPostingsRef = collection(recruiterRef, "job_postings");
-                const result = await addDoc(jobPostingsRef, formData);
+                const recruiterRef = collection(db, 'job_postings');
                 
-                    await updateDoc(doc(jobPostingsRef, result.id), {jd: jd});
+                const result = await addDoc(recruiterRef, formData);
+                
+                await updateDoc(doc(recruiterRef, result.id), {jd: jd, rec_id:user.uid});
                 
                 console.log("Successfully added job posting!");
                 // navigate('/job-board')

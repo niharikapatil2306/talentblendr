@@ -56,28 +56,29 @@ export default function Chatbox() {
     console.log(chatUsers)
     return (
         <>
-        <Typography variant="h5" sx={{fontWeight:'bold', marginBottom:'0.5rem'}}>Messages</Typography>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>
+          Messages
+        </Typography>
         <Card sx={{ padding: '1rem', overflowY: 'auto', maxHeight: '5rem' }}>
-            {chatUsers.map(user => (
-                <Box key={user.id} sx={{ marginBottom: '1rem', borderBottom:'1px solid grey', paddingBottom:'1rem' }}>
-                    <Grid container sx={{alignItems:'center'}}>
-                        <Grid item>
-                            {user.selected.map((candidate, index) => (
-                                <div style={{display:'flex'}}>
-                                <AccountCircle sx={{marginRight:'0.5rem'    }} />
-                                <Typography key={index} variant="body1" sx={{fontWeight:'bold'}}>{candidate}</Typography>
-                                </div>
-                            ))}
-                        </Grid>
-                        <Grid item sx={{ marginLeft:'1rem', }}>
-                            <Typography variant="subtitle2">{user.jobPostTitle}</Typography>
-                        </Grid>
-                    </Grid>
-                </Box>
-            ))}
+          {chatUsers.map(user => (
+            <Box key={user.id} sx={{ marginBottom: '1rem', borderBottom: '1px solid grey', paddingBottom: '1rem' }}>
+              <Grid container direction="column">
+                {user.selected.map((candidate, index) => (
+                  <Grid item key={index} sx={{ display: 'flex', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <AccountCircle sx={{ marginRight: '0.5rem' }} />
+                    <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                      {candidate}
+                    </Typography>
+                    <Typography variant="subtitle2" sx={{ marginLeft: '1rem' }}>
+                      {user.jobPostTitle}
+                    </Typography>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          ))}
         </Card>
-        
-        </>
+      </>
 
     );
 }

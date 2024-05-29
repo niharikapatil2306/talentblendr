@@ -83,28 +83,74 @@ useEffect(() => {
     fetchUsersList();
 }, []);
 
-    const skillOptions = [
-        "JavaScript",
-        "React",
-        "Node.js",
-        "HTML",
-        "CSS",
-        "Python",
-        "Java",
-        "SQL",
-        "Angular",
-        "Vue.js",
-        "TypeScript",
-        "Machine Learning",
-        "Deep Learning",
-        "Natural Language Processing (NLP)",
-        "Computer Vision",
-        "Artificial Intelligence (AI)",
-        "Data Science",
-        "TensorFlow",
-        "PyTorch",
-        "Scikit-learn",
-    ];
+const skillOptions = [
+    "JavaScript",
+    "React",
+    "Node.js",
+    "HTML",
+    "CSS",
+    "Python",
+    "Java",
+    "SQL",
+    "Angular",
+    "Vue.js",
+    "TypeScript",
+    "Machine Learning",
+    "Deep Learning",
+    "Natural Language Processing (NLP)",
+    "Computer Vision",
+    "Artificial Intelligence (AI)",
+    "Data Science",
+    "TensorFlow",
+    "PyTorch",
+    "Scikit-learn",
+    "Ansible",
+    "ASP.NET",
+    "ASP.NET Core",
+    "Assembly",
+    "AWS",
+    "Bash/Shell",
+    "C",
+    "C#",
+    "C++",
+    "Couchbase",
+    "Delphi",
+    "DigitalOcean",
+    "Docker",
+    "DynamoDB",
+    "Express",
+    "Git",
+    "Go",
+    "Google Cloud Platform",
+    "Heroku",
+    "jQuery",
+    "Kotlin",
+    "Kubernetes",
+    "Laravel",
+    "Matlab",
+    "Microsoft Azure",
+    "Microsoft SQL Server",
+    "MongoDB",
+    "MySQL",
+    "Oracle",
+    "Perl",
+    "PHP",
+    "PostgreSQL",
+    "PowerShell",
+    "Redis",
+    "Ruby",
+    "Ruby on Rails",
+    "Rust",
+    "Scala",
+    "Svelte",
+    "Spring",
+    "SQL Server",
+    "SQLite",
+    "Terraform",
+    "Unity 3D",
+    "VBA",
+    "Yarn"
+];
 
     return (
         <Container style={{ height: "100vh" }}>
@@ -167,6 +213,8 @@ useEffect(() => {
                                     <Select name="qualification" label="Qualification" labelId="label-id" value={formData.qualification} onChange={handleChange}>
                                         <MenuItem value="BE">BE</MenuItem>
                                         <MenuItem value="BTECH">BTECH</MenuItem>
+                                        <MenuItem value="Masters">Masters</MenuItem>
+                                        <MenuItem value="PHD">PHD</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
@@ -176,7 +224,8 @@ useEffect(() => {
                                         Stream
                                     </InputLabel>
                                     <Select name="stream" label="Stream" labelId="label-id" value={formData.stream} onChange={handleChange}>
-                                        <MenuItem value="AIML">AIML</MenuItem>
+                                        <MenuItem value="Artificial Intelligence & Machine Learning">Artificial Intelligence & Machine Learning</MenuItem>
+                                        <MenuItem value="DataScience">Data Science</MenuItem>
                                         <MenuItem value="CS">CS</MenuItem>
                                         <MenuItem value="IT">IT</MenuItem>
                                         <MenuItem value="ECE">ECE</MenuItem>

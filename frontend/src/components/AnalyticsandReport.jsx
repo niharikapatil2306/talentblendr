@@ -29,7 +29,7 @@ const AnalyticsAndReports = () => {
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Bar dataKey="count" fill="#8884d8" />
+                        <Bar dataKey="count" fill="#D0C0B0" />
                     </BarChart>
                 </ResponsiveContainer>
             </CardContent>
