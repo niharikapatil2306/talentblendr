@@ -15,17 +15,25 @@ export default function JobPostingCard() {
         const unsubscribe = auth.onAuthStateChanged(user => {
             if (user) {
                 const recruiterId = user.uid;
-                const jobPostingsRef = collection(db, 'recruiter', recruiterId, 'job_postings');
+                console.log(recruiterId)
+                const jobPostingsRef = collection(db, 'job_postings');
                 const unsubscribeSnapshot = onSnapshot(jobPostingsRef, snapshot => {
-                    const newJobPostings = snapshot.docs.map(doc => {
-                        return {
-                            id: doc.id,
-                            ...doc.data()
-                        };
-                    });
+                    const newJobPostings = snapshot.docs
+                        .map(doc => {
+                            console.log(doc.data());
+                            if (doc.data()['rec_id'] === user.uid) {
+                                return {
+                                    id: doc.id,
+                                    ...doc.data()
+                                };
+                            } else {
+                                return null;
+                            }
+                        })
+                        .filter(posting => posting !== null); // Filter out null values
+
                     setJobPostings(newJobPostings);
                 });
-
                 return () => unsubscribeSnapshot();
             }
         });
@@ -34,14 +42,14 @@ export default function JobPostingCard() {
     }, []);
 
     const deleteDocument = async (docId) => {
-        const docRef = doc(db, "recruiter", user.user.uid, 'job_postings', docId);
+        const docRef = doc(collection(db, 'job_postings'), docId);
         try {
             await deleteDoc(docRef);
         } catch (error) {
             console.error("Error deleting document:", error);
         }
     };
-
+    
     return (
         <>
             {jobPostings.map((jobPosting, index) => (
@@ -81,9 +89,9 @@ export default function JobPostingCard() {
                         </Grid>
                     </Grid>
                 </Card>
-                
+
             ))}
-            
+
         </>
     );
 };

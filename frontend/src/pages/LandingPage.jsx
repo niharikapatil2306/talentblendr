@@ -25,7 +25,7 @@ export default function LandingPage() {
                         <div className="text-gray-500 text-xl">
                             Transforming Recruitment, Empowering HR: Talent Blend, Where AI Redefines Talent Acquisition
                         </div>
-                        <Button onClick={() => navigate("/signup")} className="bg-blue-500 border-0 mt-8">
+                        <Button onClick={() => navigate("/seeker")} className="bg-blue-500 border-0 mt-8">
                             Get Started
                         </Button>
                     </Col>

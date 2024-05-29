@@ -11,7 +11,7 @@ import SeekerForm from './components/SeekerForm';
 import LandingPage from './pages/LandingPage';
 import Home from './pages/Home';
 import RecruiterForm from './components/RecruiterForm';
-import Seeker from './pages/Seeker';
+import Seeker from './components/Seeker';
 import JobBoardPage from './pages/JobBoard';
 import RecommendationsPage from './pages/RecommendationsPage';
 import { Lan } from '@mui/icons-material';
@@ -51,6 +51,7 @@ function App() {
     <Routes>
       <Route path="/" element={<ConditionalRoute user={user.user} userRole={userRole} />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/seeker" element={<Seeker />} />
       <Route path='/signup' element={<Signup />} />
       <Route path='/question' element={<SeekerRecruiter />} />
       <Route path='/seeker-form' element={<SeekerForm />} />
