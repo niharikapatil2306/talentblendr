@@ -1,16 +1,21 @@
 import { AppBar, Divider, Drawer, IconButton, List, ListItemButton, ListItemText, Toolbar } from "@mui/material";
 import useMediaQuery from '@mui/material/useMediaQuery';
 import MenuIcon from '@mui/icons-material/Menu';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../assets/logo1.png";
 import { AccountCircle, Edit, Home, ChevronLeft, Logout, EditNote } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
 import { signOut } from "firebase/auth";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { resetState } from "../context/actions";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function VerticalNavbarSeeker() {
+
+    const [hasScreeningTest, setHasScreeningTest] = useState(false);
+    const user = useSelector(state => state.userReducer);
+    const recruiterId = user.user.uid;
 
     const [open, setOpen] = useState(false);
     const isLargeScreen = useMediaQuery('(min-width:600px)');
@@ -35,7 +40,22 @@ export default function VerticalNavbarSeeker() {
         } catch (error) {
             console.error("Error logging out:", error);
         }
-    };
+    }; 
+
+    useEffect(() => {
+        const checkScreeningTest = async () => {
+            try {
+                const querySnapshot = await getDocs(collection(db, 'screening_test', recruiterId, 'questions'));
+                if (!querySnapshot.empty) {
+                    setHasScreeningTest(true);
+                }
+            } catch (error) {
+                console.error('Error checking screening test:', error);
+            }
+        };
+
+        checkScreeningTest();
+    }, [recruiterId]);
 
     return (
         <>
@@ -56,10 +76,12 @@ export default function VerticalNavbarSeeker() {
                             <ListItemText primary="My Profile" style={{ textAlign: 'center' }} />
                         </ListItemButton>
 
-                        <ListItemButton component={Link} to="/job-board" alignItems="center" sx={{ flexDirection: 'column' }}>
-                            <EditNote sx={{ fontSize: 54 }} />
-                            <ListItemText primary="Blogs" style={{ textAlign: 'center' }} />
-                        </ListItemButton>
+                        {hasScreeningTest && (
+                            <ListItemButton component={Link} to="/screening_test" alignItems="center" sx={{ flexDirection: 'column' }}>
+                                <EditNote sx={{ fontSize: 54 }} />
+                                <ListItemText primary="Screening Test" style={{ textAlign: 'center' }} />
+                            </ListItemButton>
+                        )}
 
                         <ListItemButton onClick={handleLogout} alignItems="center" sx={{ flexDirection: 'column' }}>
                             <Logout sx={{ fontSize: 54 }} />

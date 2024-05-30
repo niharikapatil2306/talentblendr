@@ -16,6 +16,7 @@ import JobBoardPage from './pages/JobBoard';
 import RecommendationsPage from './pages/RecommendationsPage';
 import { Lan } from '@mui/icons-material';
 import ConditionalRoute from './components/ConditionalRoute';
+import Screening_Tests from './pages/Screening_Tests';
 
 function App() {
   const [userRole, setUserRole] = useState(null);
@@ -51,7 +52,7 @@ function App() {
     <Routes>
       <Route path="/" element={<ConditionalRoute user={user.user} userRole={userRole} />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/seeker" element={<Seeker />} />
+      <Route path="/screening_test" element={<Screening_Tests />} />
       <Route path='/signup' element={<Signup />} />
       <Route path='/question' element={<SeekerRecruiter />} />
       <Route path='/seeker-form' element={<SeekerForm />} />

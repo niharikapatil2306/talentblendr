@@ -160,44 +160,44 @@ class PolicyModel(tf.keras.Model):
         return self.dense3(x)
 
 # Initialize the model and optimizer
-# vectorizer = TfidfVectorizer()
+vectorizer = TfidfVectorizer()
 df = clean_and_preprocess_data(seeker_resume_df)
-# jd_vector= vectorizer.fit_transform(recruiter_job_df["Job_Postings"])
-# resume_vector = vectorizer.transform(df['cand'])
+jd_vector= vectorizer.fit_transform(recruiter_job_df["Job_Postings"])
+resume_vector = vectorizer.transform(df['cand'])
 
-seeker_sentences = [simple_preprocess(text) for text in df['cand']]
-job_sentences = [simple_preprocess(text) for text in recruiter_job_df['Job_Postings']]
+# seeker_sentences = [simple_preprocess(text) for text in df['cand']]
+# job_sentences = [simple_preprocess(text) for text in recruiter_job_df['Job_Postings']]
 
-combined_sentences = seeker_sentences + job_sentences
+# combined_sentences = seeker_sentences + job_sentences
 
-# Train the Word2Vec model
-word2vec_model = Word2Vec(sentences=combined_sentences, vector_size=100, window=5, min_count=1, workers=4)
+# # Train the Word2Vec model
+# word2vec_model = Word2Vec(sentences=combined_sentences, vector_size=100, window=5, min_count=1, workers=4)
 
-import numpy as np
+# import numpy as np
 
-def get_average_word2vec(tokens_list, model, vocabulary, size):
-    """Calculate the average word2vec for a given sentence."""
-    vector = np.zeros(size)
-    count = 0
-    for token in tokens_list:
-        if token in vocabulary:
-            vector += model.wv[token]
-            count += 1
-    if count != 0:
-        vector /= count
-    return vector
+# def get_average_word2vec(tokens_list, model, vocabulary, size):
+#     """Calculate the average word2vec for a given sentence."""
+#     vector = np.zeros(size)
+#     count = 0
+#     for token in tokens_list:
+#         if token in vocabulary:
+#             vector += model.wv[token]
+#             count += 1
+#     if count != 0:
+#         vector /= count
+#     return vector
 
-# Vectorize job postings
-jd_vector = np.array([get_average_word2vec(sentence, word2vec_model, word2vec_model.wv.key_to_index, 100) for sentence in job_sentences])
+# # Vectorize job postings
+# jd_vector = np.array([get_average_word2vec(sentence, word2vec_model, word2vec_model.wv.key_to_index, 100) for sentence in job_sentences])
 
-# Vectorize resumes
-resume_vector = np.array([get_average_word2vec(sentence, word2vec_model, word2vec_model.wv.key_to_index, 100) for sentence in seeker_sentences])
+# # Vectorize resumes
+# resume_vector = np.array([get_average_word2vec(sentence, word2vec_model, word2vec_model.wv.key_to_index, 100) for sentence in seeker_sentences])
 
-# cand_dense = resume_vector.toarray()
-# jd_ndata_dense = jd_vector.toarray()
+cand_dense = resume_vector.toarray()
+jd_ndata_dense = jd_vector.toarray()
 
-cand_dense = resume_vector
-jd_ndata_dense = jd_vector
+# cand_dense = resume_vector
+# jd_ndata_dense = jd_vector
 
 num_actions = len(cand_dense)
 input_shape = jd_ndata_dense.shape[1]
@@ -242,9 +242,9 @@ def map_candidates_to_actions(selected_candidates, rejected_candidates, seeker_r
 
 # Training loop with PPO and GAE
 def train_with_feedback(jd_vectors, resume_vectors, recruiter_job_df, seeker_resume_df):
-    # if jd_vectors.getnnz() == 0 or resume_vectors.getnnz() == 0:
-    #     # Exit early if either jd_vectors or resume_vectors is empty
-    #     return
+    if jd_vectors.getnnz() == 0 or resume_vectors.getnnz() == 0:
+        # Exit early if either jd_vectors or resume_vectors is empty
+        return
 
     for idx, job_posting in recruiter_job_df.iterrows():
         recruiter_id = job_posting['Recruiter_ID']
@@ -255,10 +255,10 @@ def train_with_feedback(jd_vectors, resume_vectors, recruiter_job_df, seeker_res
             continue  # Recommendations already exist, skip this job posting
 
         # # Check if idx is within the valid range of row indices in jd_vectors
-        # if idx >= jd_vectors.shape[0]:
-        #     continue  # Invalid index, skip this job posting
+        if idx >= jd_vectors.shape[0]:
+            continue  # Invalid index, skip this job posting
 
-        jd_vector = jd_vectors[idx]
+        jd_vector = jd_vectors[idx].toarray()
         jd_vector_expanded = tf.expand_dims(jd_vector, axis=0)
         state = tf.convert_to_tensor(jd_vector, dtype=tf.float32)
 
@@ -308,7 +308,7 @@ def get_top_matching_candidates(jd_vector, resume_vectors, policy_model, recruit
     similarity_scores = cosine_similarity(resume_vectors, jd_vector_normalized).flatten()
 
     # Combine action probabilities and similarity scores to get combined scores
-    combined_scores =  action_probabilities +  0.5 * similarity_scores
+    combined_scores =  0.5 * action_probabilities +   similarity_scores
 
     # Sort indices based on combined scores in descending order and take the top_k indices
     sorted_indices = np.argsort(combined_scores)[::-1]
@@ -342,8 +342,8 @@ def store_recommendations(recruiter_id, job_posting_id, recommendations):
     existing_recommendations = recommendations_exist(recruiter_id, job_posting_id)
     ref = db.collection('job_postings').document(job_posting_id)
     doc = ref.get()
-    job_description = doc.get('description') 
-    questions = generate_questions_from_jd(job_description)
+    # job_description = doc.get('description') 
+    # questions = generate_questions_from_jd(job_description)
 
     for candidate_data in recommendations:
         candidate_id = candidate_data['Seeker_ID']  # Assuming 'Seeker_ID' is the candidate's unique identifier
@@ -362,10 +362,10 @@ def store_recommendations(recruiter_id, job_posting_id, recommendations):
             # Store the new recommendation
             recommendation_document_ref.set(recommendation_data)
         
-        questions_collection_ref = db.collection('screening_test').document(candidate_id).collection(job_posting_id).document(candidate_id).collection('questions')
-        for i, question in enumerate(questions):
-            questions_document_ref = questions_collection_ref.document(str(i))
-            questions_document_ref.set(question)
+        # questions_collection_ref = db.collection('screening_test').document(candidate_id).collection(job_posting_id).document(candidate_id).collection('questions')
+        # for i, question in enumerate(questions):
+        #     questions_document_ref = questions_collection_ref.document(str(i))
+        #     questions_document_ref.set(question)
 
 
 st.title('Job Recommendation System')
@@ -395,62 +395,62 @@ def check_for_new_job_postings(interval_seconds=60):
         time.sleep(interval_seconds)  # Sleep for the specified interval before checking again
 
 
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+# warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-# Configure API key
-api_key = "AIzaSyD0c_Eteg7ozapXdGE9XOY4pt11IOGep5o"
-genai.configure(api_key=api_key)
+# # Configure API key
+# api_key = "AIzaSyD0c_Eteg7ozapXdGE9XOY4pt11IOGep5o"
+# genai.configure(api_key=api_key)
 
-# Generation configuration
-generation_config = {
-    "temperature": 0.9,
-    "top_p": 1,
-    "top_k": 1,
-    "max_output_tokens": 2048,
-}
+# # Generation configuration
+# generation_config = {
+#     "temperature": 0.9,
+#     "top_p": 1,
+#     "top_k": 1,
+#     "max_output_tokens": 2048,
+# }
 
-# Initialize the model
-model = genai.GenerativeModel("gemini-1.0-pro", generation_config=generation_config)
+# # Initialize the model
+# model = genai.GenerativeModel("gemini-1.0-pro", generation_config=generation_config)
 
 # Function to generate questions from job description
-def generate_questions_from_jd(job_description):
-    prompt = f"""
-    [INST] ### Instruction: This is the job description
+# def generate_questions_from_jd(job_description):
+#     prompt = f"""
+#     [INST] ### Instruction: This is the job description
     
-    {job_description}
+#     {job_description}
 
-    Use above job description to generate 15 multiple choice questions for a screening test, questions should be based on mentioned technologies, you can ask practical questions as well, generate questions with correct answer in the following format:
-    question:
-    Options:
-    Answer: {{Answer in words, Don't write option name}} [/INST]
-    """
-    chat = model.start_chat(history=[])
-    llm_output = chat.send_message(prompt)
+#     Use above job description to generate 15 multiple choice questions for a screening test, questions should be based on mentioned technologies, you can ask practical questions as well, generate questions with correct answer in the following format:
+#     question:
+#     Options:
+#     Answer: {{Answer in words, Don't write option name}} [/INST]
+#     """
+#     chat = model.start_chat(history=[])
+#     llm_output = chat.send_message(prompt)
     
-    # Define the pattern to extract questions, options, and answers
-    question_pattern = r'\*\*Question \d+:\*\*\n(.*?)\nOptions:\n((?:\(.*?\) .*?\n)+)Answer: (.*?)\n'
-    option_pattern = r'\((.*?)\) (.*?)\n'
+#     # Define the pattern to extract questions, options, and answers
+#     question_pattern = r'\*\*Question \d+:\*\*\n(.*?)\nOptions:\n((?:\(.*?\) .*?\n)+)Answer: (.*?)\n'
+#     option_pattern = r'\((.*?)\) (.*?)\n'
     
-    # Function to extract questions, options, and answers
-    def extract_questions(chunk_texts):
-        questions = []
-        for chunk in chunk_texts:
-            match = re.findall(question_pattern, chunk)
-            if match:
-                for q in match:
-                    question_text = q[0].strip()
-                    options = re.findall(option_pattern, q[1])
-                    options = {option[0]: option[1] for option in options}
-                    answer = q[2].strip()
-                    questions.append({
-                        'question': question_text,
-                        'options': options,
-                        'answer': answer
-                    })
-        return questions
+#     # Function to extract questions, options, and answers
+#     def extract_questions(chunk_texts):
+#         questions = []
+#         for chunk in chunk_texts:
+#             match = re.findall(question_pattern, chunk)
+#             if match:
+#                 for q in match:
+#                     question_text = q[0].strip()
+#                     options = re.findall(option_pattern, q[1])
+#                     options = {option[0]: option[1] for option in options}
+#                     answer = q[2].strip()
+#                     questions.append({
+#                         'question': question_text,
+#                         'options': options,
+#                         'answer': answer
+#                     })
+#         return questions
 
-    questions = extract_questions([chunk.text for chunk in llm_output])
-    return questions
+#     questions = extract_questions([chunk.text for chunk in llm_output])
+#     return questions
 
 
 def main():

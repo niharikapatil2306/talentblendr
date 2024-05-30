@@ -10,7 +10,7 @@ export default function SelectedCandidates() {
     const [recommendations, setRecommendations] = useState([]);
 
     const user = useSelector(state => state.userReducer);
-    const [docexist, setDocExist] = useState(true);
+    // const [docexist, setDocExist] = useState(true);
 
     const navigate = useNavigate();
 
@@ -19,8 +19,8 @@ export default function SelectedCandidates() {
             if (user) {
                 const recruiterId = user.uid;
                 const recruiterRef = doc(collection(db, 'recommendations'),recruiterId);
-                const doc1 = await getDoc(recruiterRef)
-                await setDocExist(doc1.exists())
+                // const doc1 = await getDoc(recruiterRef)
+                // await setDocExist(doc1.exists())
                 
                 const unsubscribeSnapshot = onSnapshot(recruiterRef, async (recruiterDoc) => {
                     if (recruiterDoc.id) {
@@ -33,22 +33,28 @@ export default function SelectedCandidates() {
                             // Get the documents within each job posting subcollection
                             const jobPostingDocRef = collection(recruiterRef, jobPostingId.id);
                             const recommendationsSnapshot = await getDocs(jobPostingDocRef);
-        
-                            const newRecommendations = recommendationsSnapshot.docs.map((doc) => ({
-                                id: doc.id,
-                                ...doc.data(),
-                            }));
-                            const hasRecommendation = recommendations.some((rec) => rec.id === jobPostingId.id);
-                            if (!hasRecommendation) {
-                                setRecommendations((prev) => [
-                                    ...prev,
-                                    {
-                                        id: jobPostingId.id,
-                                        title: jobPostingId.title,
-                                        newRecommendations,
-                                    },
-                                ]);
+                            if (!recommendationsSnapshot.empty) {
+                                const newRecommendations = recommendationsSnapshot.docs.map((doc) => ({
+                                    // if(doc['Recruiter_ID' == recruiterId]){
+                                    //     return{
+                                            id: doc.id,
+                                            ...doc.data()
+                                    //     }
+                                    // }
+                                }));
+                                const hasRecommendation = recommendations.some((rec) => rec.id === jobPostingId.id);
+                                if (!hasRecommendation) {
+                                    setRecommendations((prev) => [
+                                        ...prev,
+                                        {
+                                            id: jobPostingId.id,
+                                            title: jobPostingId.title,
+                                            newRecommendations,
+                                        },
+                                    ]);
+                                }
                             }
+                            
 
                         }   
                     }
@@ -74,14 +80,13 @@ export default function SelectedCandidates() {
     //     // Handle rejection logic for the recommendation with ID 'id'
     // };
 
-    if(!docexist){
-        return(
-            <Typography variant='h4' sx={{ marginTop: '2rem', fontWeight: "bold", color:'#4C6071' }}>
-                Recommendations would be displayed here!!
-            </Typography>
-        )
-    }
-
+    // if(!docexist){
+    //     return(
+    //         <Typography variant='h4' sx={{ marginTop: '2rem', fontWeight: "bold", color:'#4C6071' }}>
+    //             Recommendations would be displayed here!!
+    //         </Typography>
+    //     )
+    // }
 
     return (
         <>

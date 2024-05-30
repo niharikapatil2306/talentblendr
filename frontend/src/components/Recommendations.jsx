@@ -11,6 +11,7 @@ export default function Recommendations() {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
 
+    const user = useSelector(state => state.userReducer);
 
     useEffect(() => {
         const unsubscribe = auth.onAuthStateChanged(async (user) => {
